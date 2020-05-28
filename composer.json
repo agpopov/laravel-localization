@@ -8,5 +8,11 @@
         }
     ],
     "license": "MIT",
-    "require": {}
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "agpopov\\localization\\Models\\": "src/Models/",
+            "agpopov\\localization\\Scopes\\": "src/Scopes/"
+        }
+    }
 }
