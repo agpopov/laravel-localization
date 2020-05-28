@@ -1,0 +1,12 @@
+{
+    "name": "agpopov/laravel-localization",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Alexander Popov",
+            "email": "alexander.popov.gg@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
