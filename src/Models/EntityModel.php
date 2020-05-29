@@ -2,15 +2,13 @@
 
 namespace agpopov\localization\Models;
 
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
 
-abstract class EntityModel extends \Illuminate\Database\Eloquent\Model
+abstract class EntityModel extends Model
 {
     public function __construct(array $attributes = [])
     {
         $this->with = array_merge((array)$this->with, ['translation']);
-
         parent::__construct($attributes);
     }
 

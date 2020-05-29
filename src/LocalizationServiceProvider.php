@@ -22,6 +22,7 @@ class LocalizationServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->loadMigrationsFrom(__DIR__ . '/Migrations');
         app()->routeMiddleware([
             'web' => agpopov\localization\Middleware\LocalizationMiddleware::class,
         ]);
