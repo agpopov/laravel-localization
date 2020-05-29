@@ -2,6 +2,7 @@
 
 namespace agpopov\localization;
 
+use agpopov\localization\Middleware\LocalizationMiddleware;
 use Illuminate\Support\ServiceProvider;
 
 class LocalizationServiceProvider extends ServiceProvider
@@ -24,7 +25,7 @@ class LocalizationServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__ . '/Migrations');
         app()->routeMiddleware([
-            'web' => agpopov\localization\Middleware\LocalizationMiddleware::class,
+            'web' => LocalizationMiddleware::class,
         ]);
     }
 }

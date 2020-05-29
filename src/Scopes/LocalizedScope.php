@@ -2,8 +2,7 @@
 
 namespace agpopov\localization\Scopes;
 
-
-use App\Models\Language;
+use agpopov\localization\Models\Language;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
