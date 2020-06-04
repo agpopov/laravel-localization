@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * gpopov\localization\Models\Language
+ * agpopov\localization\Models\Language
  *
  * @property int $id
  * @property string $code
+ * @property string $name
  * @property bool $default
  * @method static Builder|Language newModelQuery()
  * @method static Builder|Language newQuery()
@@ -25,11 +26,11 @@ class Language extends Model
         'default' => 'boolean'
     ];
 
-    public static function getDefault() : Language
+    public static function getDefault(): Language
     {
         static $default;
 
-        if(!isset($default)) {
+        if (! isset($default)) {
             $default = Language::whereDefault(true)->first();
         }
 

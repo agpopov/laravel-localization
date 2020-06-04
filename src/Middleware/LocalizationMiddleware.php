@@ -2,7 +2,7 @@
 
 namespace agpopov\localization\Middleware;
 
-use App\Models\Language;
+use agpopov\localization\Models\Language;
 use Closure;
 
 class LocalizationMiddleware
