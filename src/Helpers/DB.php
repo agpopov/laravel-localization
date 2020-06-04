@@ -15,8 +15,8 @@ class DB
                     NEW.created_at = OLD.created_at;
                     NEW.updated_at = CURRENT_TIMESTAMP;
 
-                    IF (NEW.deleted_at IS NOT NULL)
-                        IF (OLD.deleted_at IS NULL)
+                    IF (NEW.deleted_at IS NOT NULL) THEN
+                        IF (OLD.deleted_at IS NULL) THEN
                             NEW.deleted_at = CURRENT_TIMESTAMP;
                         ELSE
                             NEW.deleted_at = OLD.deleted_at;
