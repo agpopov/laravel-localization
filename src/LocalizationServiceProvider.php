@@ -24,8 +24,6 @@ class LocalizationServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/Migrations');
-        app()->routeMiddleware([
-            'web' => LocalizationMiddleware::class,
-        ]);
+        app()->middleware([LocalizationMiddleware::class]);
     }
 }

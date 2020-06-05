@@ -44,6 +44,16 @@ class DB
             $$ language \'plpgsql\';');
     }
 
+    public static function createOnDeleteFunction()
+    {
+        \DB::statement('CREATE OR REPLACE FUNCTION on_delete()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                RAISE EXCEPTION \'Impossible to delete row! Use soft delete.\';
+            END;
+            $$ language \'plpgsql\';');
+    }
+
     public static function createOnUpdateTranslationFunction(string $dataTableName, string $translationTableName, string $dataKey, string $foreignKey)
     {
         \DB::statement('CREATE OR REPLACE FUNCTION on_' . $translationTableName . '_update()
@@ -67,6 +77,11 @@ class DB
         \DB::statement('DROP FUNCTION IF EXISTS on_insert() CASCADE;');
     }
 
+    public static function dropOnDeleteFunction()
+    {
+        \DB::statement('DROP FUNCTION IF EXISTS on_delete() CASCADE;');
+    }
+
     public static function dropOnUpdateTranslationFunction(string $translationTableName)
     {
         \DB::statement('DROP FUNCTION IF EXISTS on_' . $translationTableName . '_update() CASCADE;');
@@ -84,6 +99,13 @@ class DB
         \DB::statement('CREATE TRIGGER on_insert_table BEFORE INSERT ON ' . $tableName . ' FOR EACH ROW EXECUTE FUNCTION on_insert();');
     }
 
+    public static function createOnDeleteTrigger(string $tableName)
+    {
+        self::dropOnDeleteTrigger($tableName);
+        \DB::statement('CREATE TRIGGER on_delete_table BEFORE DELETE ON ' . $tableName . ' FOR EACH ROW EXECUTE FUNCTION on_delete();');
+        \DB::statement('CREATE TRIGGER on_truncate_table BEFORE TRUNCATE ON ' . $tableName . ' EXECUTE FUNCTION on_delete();');
+    }
+
     public static function createOnUpdateTranslationTrigger(string $translationTableName)
     {
         self::dropOnUpdateTranslationTrigger($translationTableName);
@@ -98,6 +120,12 @@ class DB
     public static function dropOnInsertTrigger(string $tableName)
     {
         \DB::statement('DROP TRIGGER IF EXISTS on_insert_table ON ' . $tableName . ';');
+    }
+
+    public static function dropOnDeleteTrigger(string $tableName)
+    {
+        \DB::statement('DROP TRIGGER IF EXISTS on_delete_table ON ' . $tableName . ';');
+        \DB::statement('DROP TRIGGER IF EXISTS on_truncate_table ON ' . $tableName . ';');
     }
 
     public static function dropOnUpdateTranslationTrigger(string $translationTableName)
