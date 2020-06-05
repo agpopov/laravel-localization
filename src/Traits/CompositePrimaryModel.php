@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait CompositePrimaryModel
 {
-    public $incrementing = false;
 
     /**
      * Set the keys for a save update query.

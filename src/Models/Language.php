@@ -26,12 +26,17 @@ class Language extends Model
         'default' => 'boolean'
     ];
 
+    public function scopeDefault(Builder $query): Builder
+    {
+        return $query->whereDefault(true)->limit(1);
+    }
+
     public static function getDefault(): Language
     {
         static $default;
 
         if (! isset($default)) {
-            $default = Language::whereDefault(true)->first();
+            $default = Language::default()->firstOrFail();
         }
 
         return $default;

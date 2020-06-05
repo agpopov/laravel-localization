@@ -14,6 +14,8 @@ abstract class TranslationModel extends Model
     protected $guarded = [];
     public $timestamps = false;
 
+    public $incrementing = false;
+
     protected static function boot(): void
     {
         parent::boot();
