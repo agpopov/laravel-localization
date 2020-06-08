@@ -8,22 +8,29 @@ class DB
 {
     public static function createOnUpdateFunction()
     {
-        \DB::statement('CREATE OR REPLACE FUNCTION on_update()
-            RETURNS TRIGGER AS $$
+        \DB::statement('CREATE OR REPLACE FUNCTION on_update() RETURNS TRIGGER AS $$
             BEGIN
-                IF row(NEW.*) IS DISTINCT FROM row(OLD.*) THEN
+                IF row (NEW.*) IS DISTINCT FROM row (OLD.*) THEN
                     NEW.created_at = OLD.created_at;
                     NEW.updated_at = CURRENT_TIMESTAMP;
 
                     IF (NEW.deleted_at IS NOT NULL) THEN
                         IF (OLD.deleted_at IS NULL) THEN
+
+                            IF (NEW.deleted_by IS NULL) THEN
+                                RAISE EXCEPTION \'null value in column "deleted_by" violates not-null constraint\' USING ERRCODE = \'23502\';
+                            END IF;
                             NEW.deleted_at = CURRENT_TIMESTAMP;
+
                         ELSE
                             NEW.deleted_at = OLD.deleted_at;
                         END IF;
+
+                    ELSE
+                        NEW.deleted_by = NULL;
                     END IF;
 
-                  RETURN NEW;
+                    RETURN NEW;
                 ELSE
                     RETURN OLD;
                 END IF;
@@ -38,6 +45,9 @@ class DB
             BEGIN
                 NEW.created_at = CURRENT_TIMESTAMP;
                 NEW.updated_at = CURRENT_TIMESTAMP;
+                IF (NEW.deleted_at IS NOT NULL) THEN
+                    RAISE EXCEPTION \'cant`t create deleted row\' USING ERRCODE = \'09000\';
+                END IF;
                 NEW.deleted_at = NULL;
                 RETURN NEW;
             END;
@@ -54,9 +64,9 @@ class DB
             $$ language \'plpgsql\';');
     }
 
-    public static function createOnUpdateTranslationFunction(string $dataTableName, string $translationTableName, string $dataKey, string $foreignKey)
+    public static function createOnUpdateOrInsertTranslationFunction(string $dataTableName, string $translationTableName, string $dataKey, string $foreignKey)
     {
-        \DB::statement('CREATE OR REPLACE FUNCTION on_' . $translationTableName . '_update()
+        \DB::statement('CREATE OR REPLACE FUNCTION on_' . $translationTableName . '_update_or_insert()
                 RETURNS TRIGGER AS $$
                 BEGIN
                    IF row(NEW.*) IS DISTINCT FROM row(OLD.*) THEN
@@ -82,9 +92,9 @@ class DB
         \DB::statement('DROP FUNCTION IF EXISTS on_delete() CASCADE;');
     }
 
-    public static function dropOnUpdateTranslationFunction(string $translationTableName)
+    public static function dropOnUpdateOrInsertTranslationFunction(string $translationTableName)
     {
-        \DB::statement('DROP FUNCTION IF EXISTS on_' . $translationTableName . '_update() CASCADE;');
+        \DB::statement('DROP FUNCTION IF EXISTS on_' . $translationTableName . '_update_or_insert() CASCADE;');
     }
 
     public static function createOnUpdateTrigger(string $tableName)
@@ -106,10 +116,10 @@ class DB
         \DB::statement('CREATE TRIGGER on_truncate_table BEFORE TRUNCATE ON ' . $tableName . ' EXECUTE FUNCTION on_delete();');
     }
 
-    public static function createOnUpdateTranslationTrigger(string $translationTableName)
+    public static function createOnUpdateOrInsertTranslationTrigger(string $translationTableName)
     {
         self::dropOnUpdateTranslationTrigger($translationTableName);
-        \DB::statement('CREATE TRIGGER on_update_or_insert_table AFTER UPDATE OR INSERT ON ' . $translationTableName . ' FOR EACH ROW EXECUTE FUNCTION on_' . $translationTableName . '_update();');
+        \DB::statement('CREATE TRIGGER on_update_or_insert_table AFTER UPDATE OR INSERT ON ' . $translationTableName . ' FOR EACH ROW EXECUTE FUNCTION on_' . $translationTableName . '_update_or_insert();');
     }
 
     public static function dropOnUpdateTrigger(string $tableName)

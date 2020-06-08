@@ -18,6 +18,10 @@ class CreateLanguagesTable extends Migration
             $table->string('name', 128)->unique();
             $table->boolean('default')->default(false);
         });
+
+        if (DB::getDefaultConnection() === 'pgsql') {
+            DB::statement('create unique index on languages ("default") where "default" = true');
+        }
     }
 
     /**
