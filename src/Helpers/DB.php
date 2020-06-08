@@ -113,7 +113,6 @@ class DB
     {
         self::dropOnDeleteTrigger($tableName);
         \DB::statement('CREATE TRIGGER on_delete_table BEFORE DELETE ON ' . $tableName . ' FOR EACH ROW EXECUTE FUNCTION on_delete();');
-        \DB::statement('CREATE TRIGGER on_truncate_table BEFORE TRUNCATE ON ' . $tableName . ' EXECUTE FUNCTION on_delete();');
     }
 
     public static function createOnUpdateOrInsertTranslationTrigger(string $translationTableName)
@@ -135,7 +134,6 @@ class DB
     public static function dropOnDeleteTrigger(string $tableName)
     {
         \DB::statement('DROP TRIGGER IF EXISTS on_delete_table ON ' . $tableName . ';');
-        \DB::statement('DROP TRIGGER IF EXISTS on_truncate_table ON ' . $tableName . ';');
     }
 
     public static function dropOnUpdateTranslationTrigger(string $translationTableName)

@@ -10,12 +10,12 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property string $code
- * @property string $name
+ * @property string $language
  * @property bool $default
  * @method static Builder|Language newModelQuery()
  * @method static Builder|Language newQuery()
  * @method static Builder|Language query()
- * @method static Builder|Language whereCode($value)
+ * @method static Builder|Language whereLanguage($value)
  * @method static Builder|Language whereDefault($value)
  * @method static Builder|Language whereId($value)
  * @mixin \Eloquent
@@ -25,6 +25,7 @@ class Language extends Model
     protected $casts = [
         'default' => 'boolean'
     ];
+    public $timestamps = false;
 
     public function scopeDefault(Builder $query): Builder
     {

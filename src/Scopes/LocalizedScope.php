@@ -21,7 +21,7 @@ class LocalizedScope implements Scope
     {
         $locale = app()->getLocale();
         $defaultLang = Language::getDefault();
-        $builder->join($defaultLang->getTable(), $model->getTable() . '.language_id' . '.id', '=', $defaultLang->getTable());
+        $builder->join($defaultLang->getTable(), $model->getTable() . '.language_id', '=', $defaultLang->getTable() . '.id');
         $builder->where('languages.code', app()->getLocale());
 
         if ($locale !== $defaultLang->code) {
