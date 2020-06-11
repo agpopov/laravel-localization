@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder|Language newQuery()
  * @method static Builder|Language query()
  * @method static Builder|Language whereLanguage($value)
+ * @method static Builder|Language whereCode($value)
  * @method static Builder|Language whereDefault($value)
  * @method static Builder|Language whereId($value)
  * @mixin \Eloquent
