@@ -2,8 +2,10 @@
 
 namespace agpopov\localization\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Validator;
 
 abstract class EntityModel extends Model
 {
@@ -15,17 +17,6 @@ abstract class EntityModel extends Model
         parent::__construct($attributes);
     }
 
-    public static function page(array $page, array $with = [])
-    {
-        $request = app('request');
-        $query = static::query();
-        if (count($with)) {
-            $query = $query->with($with);
-        }
-        return $query->paginate($page['size'], ['*'], 'page[number]', $page['number'])
-            ->withPath($request->fullUrlWithQuery($request->except('page.number')));
-    }
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\hasOne
      */
@@ -33,9 +24,42 @@ abstract class EntityModel extends Model
 
     public function setTranslation(array $fields)
     {
-        $fields = Arr::only($fields, $this->translation()->getModel()->getFillable());
-        $this->translation()->updateOrCreate([], array_merge($fields, [
-            'language_id' => Language::whereCode(app()->getLocale())->firstOrFail(['id'])->id
-        ]));
+        $this->translation()->updateOrCreate([], Arr::only($fields, $this->translation()->getModel()->getFillable()));
+    }
+
+    public function setRelationships(array $fields)
+    {
+    }
+
+    public static function store(array $fields)
+    {
+        $fields = Validator::make($fields, (new static())->rules['store'])->validate();
+
+        return DB::transaction(function () use ($fields) {
+            $model = new static();
+            $model->setRawAttributes(Arr::only($fields, $model->getFillable()), true);
+            $model->save();
+            $model->setTranslation($fields);
+            $model->setRelationships($fields);
+            return $model;
+        });
+    }
+
+    public static function change($id, array $fields)
+    {
+        $fields = Validator::make($fields, (new static())->rules['update'])->validate();
+
+        return DB::transaction(function () use ($id, $fields) {
+            $model = static::whereKey($id)->without('translation')->firstOrFail();
+            $model->update(Arr::only($fields, $model->getFillable()));
+            $model->setTranslation($fields);
+            $model->setRelationships($fields);
+            return $model;
+        });
+    }
+
+    public static function destroy($id)
+    {
+        return static::whereKey($id)->without(['translation'])->firstOrFail()->delete();
     }
 }
