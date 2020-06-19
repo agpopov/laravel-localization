@@ -24,7 +24,8 @@ abstract class EntityModel extends Model
 
     public function setTranslation(array $fields)
     {
-        $this->translation()->updateOrCreate([], Arr::only($fields, $this->translation()->getModel()->getFillable()));
+        $languageId = $this->translation->language_id ?? Language::whereCode(app()->getLocale())->firstOrFail(['id'])->id;
+        $this->translation()->updateOrCreate(['language_id' => $languageId], Arr::only($fields, $this->translation()->getModel()->getFillable()));
     }
 
     public function setRelationships(array $fields)

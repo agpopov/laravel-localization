@@ -64,9 +64,9 @@ class DB
             $$ language \'plpgsql\';');
     }
 
-    public static function createOnUpdateOrInsertTranslationFunction(string $dataTableName, string $translationTableName, string $dataKey, string $foreignKey)
+    public static function createOnUpdateOrInsertRelationshipFunction(string $dataTableName, string $relationshipTableName, string $dataKey, string $foreignKey)
     {
-        \DB::statement('CREATE OR REPLACE FUNCTION on_' . $translationTableName . '_update_or_insert()
+        \DB::statement('CREATE OR REPLACE FUNCTION on_' . $relationshipTableName . '_update_or_insert()
                 RETURNS TRIGGER AS $$
                 BEGIN
                    IF row(NEW.*) IS DISTINCT FROM row(OLD.*) THEN
@@ -92,9 +92,9 @@ class DB
         \DB::statement('DROP FUNCTION IF EXISTS on_delete() CASCADE;');
     }
 
-    public static function dropOnUpdateOrInsertTranslationFunction(string $translationTableName)
+    public static function dropOnUpdateOrInsertRelationshipFunction(string $relationshipTableName)
     {
-        \DB::statement('DROP FUNCTION IF EXISTS on_' . $translationTableName . '_update_or_insert() CASCADE;');
+        \DB::statement('DROP FUNCTION IF EXISTS on_' . $relationshipTableName . '_update_or_insert() CASCADE;');
     }
 
     public static function createOnUpdateTrigger(string $tableName)
@@ -115,10 +115,10 @@ class DB
         \DB::statement('CREATE TRIGGER on_delete_table BEFORE DELETE ON ' . $tableName . ' FOR EACH ROW EXECUTE FUNCTION on_delete();');
     }
 
-    public static function createOnUpdateOrInsertTranslationTrigger(string $translationTableName)
+    public static function createOnUpdateOrInsertRelationshipTrigger(string $relationshipTableName)
     {
-        self::dropOnUpdateTranslationTrigger($translationTableName);
-        \DB::statement('CREATE TRIGGER on_update_or_insert_table AFTER UPDATE OR INSERT ON ' . $translationTableName . ' FOR EACH ROW EXECUTE FUNCTION on_' . $translationTableName . '_update_or_insert();');
+        self::dropOnUpdateRelationshipTrigger($relationshipTableName);
+        \DB::statement('CREATE TRIGGER on_update_or_insert_table AFTER UPDATE OR INSERT ON ' . $relationshipTableName . ' FOR EACH ROW EXECUTE FUNCTION on_' . $relationshipTableName . '_update_or_insert();');
     }
 
     public static function dropOnUpdateTrigger(string $tableName)
@@ -136,8 +136,8 @@ class DB
         \DB::statement('DROP TRIGGER IF EXISTS on_delete_table ON ' . $tableName . ';');
     }
 
-    public static function dropOnUpdateTranslationTrigger(string $translationTableName)
+    public static function dropOnUpdateRelationshipTrigger(string $relationshipTableName)
     {
-        \DB::statement('DROP TRIGGER IF EXISTS on_update_or_insert_table ON ' . $translationTableName . ';');
+        \DB::statement('DROP TRIGGER IF EXISTS on_update_or_insert_table ON ' . $relationshipTableName . ';');
     }
 }
