@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder|Language whereCode($value)
  * @method static Builder|Language whereDefault($value)
  * @method static Builder|Language whereId($value)
+ * @method static Builder|Language default()
  * @mixin \Eloquent
  */
 class Language extends Model
@@ -31,16 +32,5 @@ class Language extends Model
     public function scopeDefault(Builder $query): Builder
     {
         return $query->whereDefault(true)->limit(1);
-    }
-
-    public static function getDefault(): Language
-    {
-        static $default;
-
-        if (! isset($default)) {
-            $default = Language::default()->firstOrFail();
-        }
-
-        return $default;
     }
 }

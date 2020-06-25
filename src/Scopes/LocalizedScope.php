@@ -3,6 +3,8 @@
 namespace agpopov\localization\Scopes;
 
 use agpopov\localization\Models\Language;
+use agpopov\localization\Repositories\CachingLanguageRepository;
+use agpopov\localization\Repositories\LanguageRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
@@ -20,12 +22,13 @@ class LocalizedScope implements Scope
     public function apply(Builder $builder, Model $model)
     {
         $locale = app()->getLocale();
-        $defaultLang = Language::getDefault();
-        $builder->join($defaultLang->getTable(), $model->getTable() . '.language_id', '=', $defaultLang->getTable() . '.id');
-        $builder->where('languages.code', app()->getLocale());
+        $repository = new CachingLanguageRepository(new LanguageRepository(new Language()));
+        $defaultLanguage = $repository->default();
+        $builder->join($defaultLanguage->getTable(), $model->getTable() . '.language_id', '=', $defaultLanguage->getTable() . '.id');
+        $builder->where($defaultLanguage->getTable() . '.code', app()->getLocale());
 
-        if ($locale !== $defaultLang->code) {
-            $builder->orWhere($defaultLang->getTable() . '.code', $defaultLang->code)->orderBy($defaultLang->getTable() . '.default', 'asc');
+        if ($locale !== $defaultLanguage->code) {
+            $builder->orWhere($defaultLanguage->getTable() . '.code', $defaultLanguage->code)->orderBy($defaultLanguage->getTable() . '.default', 'asc');
         }
     }
 }

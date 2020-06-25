@@ -6,12 +6,24 @@ namespace agpopov\localization\Helpers;
 
 class DB
 {
+    public static function createJsonToArrayFunction()
+    {
+        \DB::statement('CREATE OR REPLACE FUNCTION json_to_array(_js json)
+                    RETURNS text[] LANGUAGE sql IMMUTABLE PARALLEL SAFE AS
+                \'SELECT ARRAY(SELECT json_array_elements_text(_js))\';');
+    }
+
+    public static function dropJsonToArrayFunction() {
+        \DB::statement('DROP FUNCTION IF EXISTS json_to_array(json) CASCADE');
+    }
+
     public static function createOnUpdateFunction()
     {
         \DB::statement('CREATE OR REPLACE FUNCTION on_update() RETURNS TRIGGER AS $$
             BEGIN
                 IF row (NEW.*) IS DISTINCT FROM row (OLD.*) THEN
                     NEW.created_at = OLD.created_at;
+                    NEW.created_by = OLD.created_by;
                     NEW.updated_at = CURRENT_TIMESTAMP;
 
                     IF (NEW.deleted_at IS NOT NULL) THEN
@@ -48,7 +60,7 @@ class DB
                 IF (NEW.deleted_at IS NOT NULL) THEN
                     RAISE EXCEPTION \'cant`t create deleted row\' USING ERRCODE = \'09000\';
                 END IF;
-                NEW.deleted_at = NULL;
+                NEW.deleted_by = NULL;
                 RETURN NEW;
             END;
             $$ language \'plpgsql\';');

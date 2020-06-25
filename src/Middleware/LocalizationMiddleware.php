@@ -3,6 +3,8 @@
 namespace agpopov\localization\Middleware;
 
 use agpopov\localization\Models\Language;
+use agpopov\localization\Repositories\CachingLanguageRepository;
+use agpopov\localization\Repositories\LanguageRepository;
 use Closure;
 
 class LocalizationMiddleware
@@ -16,7 +18,8 @@ class LocalizationMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $local = $request->hasHeader('x-localization') ? $request->header('x-localization') : Language::getDefault()->code;
+        $repository = new CachingLanguageRepository(new LanguageRepository(new Language()));
+        $local = $request->hasHeader('x-localization') ? $request->header('x-localization') : $repository->default()->code;
         app()->setLocale($local);
         return $next($request);
     }
