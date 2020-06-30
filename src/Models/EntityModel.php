@@ -2,6 +2,7 @@
 
 namespace agpopov\localization\Models;
 
+use agpopov\localization\Repositories\LanguageRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
@@ -28,7 +29,7 @@ abstract class EntityModel extends Model
 
     public function setTranslation(array $fields)
     {
-        $languageId = $this->translation->language_id ?? Language::whereCode(app()->getLocale())->firstOrFail(['id'])->id;
+        $languageId = $this->translation->language_id ?? app(LanguageRepositoryInterface::class)->all()->firstWhere('code', app()->getLocale())->id;
         $this->translation()->updateOrCreate(['language_id' => $languageId], Arr::only($fields, $this->translation()->getModel()->getFillable()));
     }
 
