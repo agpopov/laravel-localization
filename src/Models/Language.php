@@ -28,6 +28,7 @@ class Language extends Model
         'default' => 'boolean'
     ];
     public $timestamps = false;
+    protected $guarded = ['id'];
 
     public function scopeDefault(Builder $query): Builder
     {
